@@ -1,0 +1,4 @@
+locations:
+- code_source:
+    module_name: mastery.definitions
+  location_name: mastery
