@@ -1,6 +1,5 @@
 from dagster import (
-    asset, DailyPartitionsDefinition, AssetExecutionContext,
-    define_asset_job, ScheduleDefinition, RunRequest
+    asset, DailyPartitionsDefinition, AssetExecutionContext, define_asset_job, ScheduleDefinition, RunRequest
 )
 import pandas as pd
 from datetime import timedelta, datetime
@@ -32,3 +31,19 @@ def raw_daily_sales(context: AssetExecutionContext) -> pd.DataFrame:
         "customer": ["A", "B", "C", "D", "E"],
         "sales": [100, 250, 175, 300, 400]
     })
+
+daily_sales_job = define_asset_job(
+    name="daily_sales_job",
+    selection=[raw_daily_sales],
+    partitions_def=daily,
+)
+
+def partition_request(context):
+    prev_day = context.scheduled_execution_time - timedelta(days=1)
+    return RunRequest(partition_key=prev_day.strftime("%Y-%m-%d"))
+
+daily_schedule = ScheduleDefinition(
+    job=daily_sales_job,
+    cron_schedule="*\5 * * * *",   # every minute
+    execution_fn=partition_request
+)

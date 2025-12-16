@@ -1,9 +1,12 @@
 from dagster import Definitions, load_assets_from_modules
 
-from . import assets  
+from . import assets, assets2
 
-all_assets = load_assets_from_modules([assets])
+asset1 = load_assets_from_modules([assets])
+asset2 = load_assets_from_modules([assets2])
 
 defs = Definitions(
-    assets=all_assets,
+    assets=[asset1, asset2],
+    jobs=[assets.daily_sales_job, assets2.inventory_job],
+    schedules=[assets.daily_schedule, assets2.inventory_schedule],
 )
