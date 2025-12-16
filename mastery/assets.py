@@ -44,6 +44,8 @@ def partition_request(context):
 
 daily_schedule = ScheduleDefinition(
     job=daily_sales_job,
-    cron_schedule="*/5 * * * *",   # every minute
+    cron_schedule="*/5 * * * *",   # every minute 
     execution_fn=partition_request
 )
+def hold():
+    pass
