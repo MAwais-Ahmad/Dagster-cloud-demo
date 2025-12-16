@@ -1,18 +1,34 @@
+from dagster import (
+    asset, DailyPartitionsDefinition, AssetExecutionContext,
+    define_asset_job, ScheduleDefinition, RunRequest
+)
 import pandas as pd
-from dagster import asset, MetadataValue
+from datetime import timedelta, datetime
 
-@asset
-def dummy_pandas_data():
-    df = pd.DataFrame(
-        {
-            "user_id": [1, 2, 3, 4],
-            "name": ["Awais", "Ali", "Sara", "Hina"],
-            "score": [85, 90, 78, 88],
-        }
-    )
+daily = DailyPartitionsDefinition(
+    start_date="2025-01-01"
+)
 
-    return {
-        "data": df,
-        "row_count": len(df),
-    }
 
+@asset(
+    partitions_def=daily,  
+)
+def raw_daily_sales(context: AssetExecutionContext) -> pd.DataFrame:
+    date_str = context.partition_key
+    
+    now = datetime.now().strftime("%H:%M:%S")
+    context.log.info(f"[{now}] 🚀 Starting partition: {date_str}")
+
+    for i in range(1, 6):
+        now = datetime.now().strftime("%H:%M:%S")
+        context.log.info(f"[{now}]   ⏳ Working... step {i}/5")
+        
+
+    now = datetime.now().strftime("%H:%M:%S")
+    context.log.info(f"[{now}] ✅ Finished partition: {date_str}")
+
+    return pd.DataFrame({
+        "date": pd.to_datetime([date_str] * 5),
+        "customer": ["A", "B", "C", "D", "E"],
+        "sales": [100, 250, 175, 300, 400]
+    })
